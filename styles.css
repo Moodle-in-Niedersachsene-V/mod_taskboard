@@ -442,3 +442,20 @@
     min-height: 2.5rem;
     overflow-wrap: anywhere;
 }
+
+/* The first link's title on the card, shortened to the free space. */
+.mod_taskboard-page .mod_taskboard-meta > .mod_taskboard-linkinfo {
+    min-width: 0;
+    max-width: 60%;
+    flex-shrink: 1;
+}
+
+.mod_taskboard-page .mod_taskboard-linkinfo svg {
+    flex-shrink: 0;
+}
+
+.mod_taskboard-page .mod_taskboard-linklabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

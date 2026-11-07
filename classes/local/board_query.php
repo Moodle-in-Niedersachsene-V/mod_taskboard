@@ -54,7 +54,7 @@ class board_query {
         $cards = $DB->get_records('taskboard_cards', ['boardid' => $board->id], 'columnid, sortorder, id');
         $cards = array_filter($cards, fn($card) => $access->can_see_card($card));
         $checks = $this->check_counts(array_keys($cards));
-        $linkcounts = $this->link_counts(array_keys($cards));
+        $links = $this->link_summaries(array_keys($cards));
         $assignees = $this->assignees(array_keys($cards));
         $images = $this->image_urls();
 
@@ -76,7 +76,7 @@ class board_query {
                     $checks[(int)$card->id] ?? [0, 0],
                     $assignees[(int)$card->id] ?? [],
                     $images[(int)$card->id] ?? null,
-                    $linkcounts[(int)$card->id] ?? 0
+                    $links[(int)$card->id] ?? ['label' => '', 'count' => 0]
                 );
             }
             $count = count($columncards);
@@ -128,10 +128,9 @@ class board_query {
         $assignees = $this->assignees([(int)$card->id])[(int)$card->id] ?? [];
         $links = [];
         foreach ($DB->get_records('taskboard_links', ['cardid' => $card->id], 'sortorder, id') as $link) {
-            $title = trim((string)$link->title);
             $links[] = [
                 'url' => $link->url,
-                'title' => $title !== '' ? $title : $link->url,
+                'title' => self::link_label($link),
             ];
         }
         $images = $this->image_urls((int)$card->id);
@@ -212,7 +211,7 @@ class board_query {
      * @param int[] $checks Done and total checklist items.
      * @param array $assignees Exported assignees.
      * @param string|null $imageurl The image address, if any.
-     * @param int $linkcount Number of links on the card.
+     * @param array $links Label of the first link and number of links.
      * @return array
      */
     private function export_card_summary(
@@ -222,7 +221,7 @@ class board_query {
         array $checks,
         array $assignees,
         ?string $imageurl,
-        int $linkcount
+        array $links
     ): array {
         $access = $this->access;
         [$done, $total] = $checks;
@@ -239,6 +238,7 @@ class board_query {
         if ($total > 0) {
             $aria[] = get_string('checksaria', 'mod_taskboard', (object)['done' => $done, 'total' => $total]);
         }
+        $linkcount = (int)$links['count'];
         if ($linkcount > 0) {
             $aria[] = get_string('linksaria', 'mod_taskboard', $linkcount);
         }
@@ -262,7 +262,9 @@ class board_query {
             'imageurl' => $imageurl ?? '',
             'hasvideo' => !empty($access->taskboard->allowvideos) && trim((string)$card->videourl) !== '',
             'haslinks' => $linkcount > 0,
-            'linkcount' => $linkcount,
+            'linklabel' => $links['label'],
+            'hasmorelinks' => $linkcount > 1,
+            'morelinks' => max(0, $linkcount - 1),
             'isdone' => (bool)$column->isdone,
             'pending' => empty($card->approved),
             'assignees' => $shown,
@@ -323,26 +325,43 @@ class board_query {
     }
 
     /**
-     * Returns the number of links per card.
+     * Returns, per card, the label of its first link and the number of its links.
      *
      * @param int[] $cardids The card ids.
-     * @return array<int, int>
+     * @return array<int, array{label: string, count: int}>
      */
-    private function link_counts(array $cardids): array {
+    private function link_summaries(array $cardids): array {
         global $DB;
         if (!$cardids) {
             return [];
         }
         [$insql, $params] = $DB->get_in_or_equal($cardids, SQL_PARAMS_NAMED);
-        $sql = "SELECT cardid, COUNT(id) AS total
-                  FROM {taskboard_links}
-                 WHERE cardid $insql
-              GROUP BY cardid";
-        $counts = [];
-        foreach ($DB->get_records_sql($sql, $params) as $row) {
-            $counts[(int)$row->cardid] = (int)$row->total;
+        $links = $DB->get_records_select('taskboard_links', "cardid $insql", $params, 'cardid, sortorder, id');
+        $summaries = [];
+        foreach ($links as $link) {
+            $cardid = (int)$link->cardid;
+            if (!isset($summaries[$cardid])) {
+                $summaries[$cardid] = ['label' => self::link_label($link), 'count' => 0];
+            }
+            $summaries[$cardid]['count']++;
         }
-        return $counts;
+        return $summaries;
+    }
+
+    /**
+     * Returns the text a link is shown with: its title, or the host name of its address.
+     *
+     * @param stdClass $link The link record.
+     * @return string
+     */
+    public static function link_label(stdClass $link): string {
+        $title = trim((string)$link->title);
+        if ($title !== '') {
+            return $title;
+        }
+        $host = (string)parse_url((string)$link->url, PHP_URL_HOST);
+        $host = preg_replace('/^www\./i', '', $host);
+        return $host !== '' ? $host : (string)$link->url;
     }
 
     /**
