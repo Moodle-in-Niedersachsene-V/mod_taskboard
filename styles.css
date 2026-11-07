@@ -1,0 +1,427 @@
+/* Board layout. */
+.mod_taskboard-page {
+    position: relative;
+}
+
+.mod_taskboard-page .mod_taskboard-scroll {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-snap-type: x proximity;
+}
+
+.mod_taskboard-page .mod_taskboard-columns {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    min-width: min-content;
+}
+
+.mod_taskboard-page .mod_taskboard-column,
+.mod_taskboard-page .mod_taskboard-addcolumn {
+    flex: 1 1 280px;
+    min-width: 264px;
+    max-width: 360px;
+    scroll-snap-align: start;
+}
+
+.mod_taskboard-page .mod_taskboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: .625rem;
+    padding: .75rem;
+    background-color: #eaeef3;
+    border: 2px solid transparent;
+    border-radius: .75rem;
+}
+
+.mod_taskboard-page .mod_taskboard-count {
+    background-color: #fff;
+    color: #495057;
+    font-size: .8125rem;
+}
+
+.mod_taskboard-page .mod_taskboard-wipwarning {
+    display: none;
+    padding: .375rem .5rem;
+    color: #9a3412;
+    background-color: #ffedd5;
+    border-radius: .375rem;
+}
+
+.mod_taskboard-page .mod_taskboard-overlimit .mod_taskboard-wipwarning {
+    display: block;
+}
+
+.mod_taskboard-page .mod_taskboard-overlimit .mod_taskboard-count {
+    background-color: #ffedd5;
+    color: #9a3412;
+}
+
+.mod_taskboard-page .mod_taskboard-cardlist {
+    display: flex;
+    flex-direction: column;
+    gap: .625rem;
+    min-height: 6rem;
+}
+
+.mod_taskboard-page .mod_taskboard-addcard {
+    min-height: 44px;
+    font-weight: 600;
+}
+
+/* Cards. */
+.mod_taskboard-page .mod_taskboard-card,
+.mod_taskboard-ghost {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    background-color: #fff;
+    border: 1px solid #d3d9df;
+    border-radius: .625rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.mod_taskboard-page .mod_taskboard-card:hover {
+    box-shadow: 0 2px 6px rgba(15, 23, 42, .14);
+}
+
+.mod_taskboard-page .mod_taskboard-card:focus-visible {
+    outline: 3px solid #0f6cbf;
+    outline-offset: 2px;
+}
+
+.mod_taskboard-page .mod_taskboard-card[data-canmove="0"] {
+    cursor: pointer;
+    touch-action: auto;
+}
+
+.mod_taskboard-page .mod_taskboard-card.mod_taskboard-grabbed {
+    box-shadow: 0 0 0 3px #0f6cbf, 0 10px 24px rgba(15, 23, 42, .22);
+}
+
+.mod_taskboard-page .mod_taskboard-card.mod_taskboard-hidden {
+    display: none;
+}
+
+.mod_taskboard-page .mod_taskboard-card.mod_taskboard-pending {
+    border-style: dashed;
+    border-color: #b45309;
+}
+
+.mod_taskboard-ghost {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    pointer-events: none;
+    border-color: #0f6cbf;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, .28);
+}
+
+.mod_taskboard-page .mod_taskboard-placeholder {
+    flex-shrink: 0;
+    border: 2px dashed #0f6cbf;
+    border-radius: .625rem;
+    background-color: #e3effa;
+}
+
+.mod_taskboard-page.mod_taskboard-dragging,
+.mod_taskboard-page.mod_taskboard-dragging .mod_taskboard-card {
+    cursor: grabbing;
+}
+
+.mod_taskboard-page .mod_taskboard-cover,
+.mod_taskboard-ghost .mod_taskboard-cover {
+    display: block;
+    flex-shrink: 0;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.mod_taskboard-page .mod_taskboard-cardbody,
+.mod_taskboard-ghost .mod_taskboard-cardbody {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    min-height: 0;
+    padding: .625rem .75rem .75rem;
+}
+
+.mod_taskboard-page .mod_taskboard-labels,
+.mod_taskboard-ghost .mod_taskboard-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.mod_taskboard-page .mod_taskboard-label,
+.mod_taskboard-ghost .mod_taskboard-label {
+    padding: .125rem .5rem;
+    font-size: .6875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    border-radius: 999px;
+    background-color: #e9ecef;
+    color: #343a40;
+}
+
+.mod_taskboard-page .mod_taskboard-label-idea {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.mod_taskboard-page .mod_taskboard-label-research {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.mod_taskboard-page .mod_taskboard-label-presentation {
+    background-color: #ede9fe;
+    color: #5b21b6;
+}
+
+.mod_taskboard-page .mod_taskboard-label-important {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.mod_taskboard-page .mod_taskboard-label-helpneeded {
+    background-color: #ffedd5;
+    color: #9a3412;
+}
+
+.mod_taskboard-page .mod_taskboard-title,
+.mod_taskboard-ghost .mod_taskboard-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: .9375rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.mod_taskboard-page .mod_taskboard-meta,
+.mod_taskboard-ghost .mod_taskboard-meta {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    min-height: 24px;
+    font-size: .75rem;
+    color: #5c6670;
+}
+
+.mod_taskboard-page .mod_taskboard-meta > span {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.mod_taskboard-page .mod_taskboard-meta .mod_taskboard-spacer {
+    flex: 1;
+}
+
+.mod_taskboard-page .mod_taskboard-done {
+    color: #166534;
+    font-weight: 600;
+}
+
+.mod_taskboard-page .mod_taskboard-overdue {
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+.mod_taskboard-page .mod_taskboard-badge-pending {
+    padding: 0 .375rem;
+    color: #92400e;
+    background-color: #fef3c7;
+    border-radius: .25rem;
+}
+
+.mod_taskboard-page .mod_taskboard-imagehint {
+    display: none;
+}
+
+/* Avatars, also used in the card detail modal. */
+.mod_taskboard-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: -6px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #495057;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+.mod_taskboard-detail .mod_taskboard-avatar {
+    margin-left: 0;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-1 {
+    background-color: #0f6cbf;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-2 {
+    background-color: #0f766e;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-3 {
+    background-color: #9a3412;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-4 {
+    background-color: #be123c;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-5 {
+    background-color: #4d7c0f;
+}
+
+.mod_taskboard-avatar.mod_taskboard-avatar-6 {
+    background-color: #6d28d9;
+}
+
+.mod_taskboard-page .mod_taskboard-avatars {
+    display: inline-flex;
+    padding-left: 6px;
+}
+
+/* Card sizes: S, M and L keep every card the same height; Auto follows the content. */
+.mod_taskboard-page.mod_taskboard-size-auto .mod_taskboard-title {
+    -webkit-line-clamp: unset;
+}
+
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-card {
+    height: 108px;
+}
+
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-title {
+    -webkit-line-clamp: 1;
+}
+
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-cover {
+    display: none;
+}
+
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-imagehint {
+    display: inline-flex;
+}
+
+.mod_taskboard-page.mod_taskboard-size-m .mod_taskboard-card {
+    height: 208px;
+}
+
+.mod_taskboard-page.mod_taskboard-size-m .mod_taskboard-cover {
+    height: 76px;
+    aspect-ratio: auto;
+}
+
+.mod_taskboard-page.mod_taskboard-size-m .mod_taskboard-title,
+.mod_taskboard-page.mod_taskboard-size-l .mod_taskboard-title {
+    -webkit-line-clamp: 2;
+}
+
+.mod_taskboard-page.mod_taskboard-size-l .mod_taskboard-card {
+    height: 284px;
+}
+
+.mod_taskboard-page.mod_taskboard-size-l .mod_taskboard-cover {
+    height: 136px;
+    aspect-ratio: auto;
+}
+
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-ghost .mod_taskboard-cover {
+    display: none;
+}
+
+/* Undo message. */
+.mod_taskboard-page .mod_taskboard-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    max-width: calc(100% - 2rem);
+    padding: .375rem .375rem .375rem 1rem;
+    color: #fff;
+    background-color: #1d2125;
+    border-radius: .625rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .25);
+    transform: translateX(-50%);
+}
+
+.mod_taskboard-page .mod_taskboard-toast.d-none {
+    display: none;
+}
+
+/* Card detail. */
+.mod_taskboard-detail .mod_taskboard-detailimage {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+}
+
+.mod_taskboard-detail .mod_taskboard-label {
+    padding: .125rem .625rem;
+    font-size: .75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    background-color: #e9ecef;
+}
+
+.mod_taskboard-detail .mod_taskboard-label-idea {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.mod_taskboard-detail .mod_taskboard-label-research {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.mod_taskboard-detail .mod_taskboard-label-presentation {
+    background-color: #ede9fe;
+    color: #5b21b6;
+}
+
+.mod_taskboard-detail .mod_taskboard-label-important {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.mod_taskboard-detail .mod_taskboard-label-helpneeded {
+    background-color: #ffedd5;
+    color: #9a3412;
+}
+
+.mod_taskboard-detail .mod_taskboard-check {
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.mod_taskboard-detail .mod_taskboard-pastepanel img {
+    max-height: 200px;
+}

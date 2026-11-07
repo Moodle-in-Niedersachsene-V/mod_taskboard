@@ -1,0 +1,102 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_taskboard/card_detail
+
+    A card in full, shown in a modal. The description is already cleaned by format_text().
+
+    Example context (json):
+    {
+        "id": 12, "boardid": 7, "title": "Interview the climate officer",
+        "description": "<p>Prepare questions.</p>", "hasdescription": true, "columntitle": "To do",
+        "labels": [{"key": "research", "name": "Research"}],
+        "hasduedate": true, "duedate": "20/11/26", "author": "Max Kramer",
+        "assignees": [{"userid": 5, "fullname": "Lea Sommer", "initials": "LS", "colour": 6}], "hasassignees": true,
+        "checks": [{"id": 1, "text": "Write questions", "done": true}], "haschecks": true,
+        "checksdone": 1, "checkstotal": 1, "checkspercent": 100,
+        "hasimage": false, "imageurl": "", "imagealt": "", "hasvideo": false, "videourl": "",
+        "approved": true, "canapprove": false, "canedit": true, "canmove": true, "canaddimage": true
+    }
+}}
+<div class="mod_taskboard-detail" data-region="mod_taskboard-detail" data-cardid="{{id}}">
+    {{#hasimage}}
+    <img class="mod_taskboard-detailimage img-fluid rounded mb-3" src="{{imageurl}}" alt="{{imagealt}}">
+    {{/hasimage}}
+    {{^approved}}
+    <div class="alert alert-warning">{{#str}}pendingapprovalnotice, mod_taskboard{{/str}}</div>
+    {{/approved}}
+    <div class="d-flex flex-wrap gap-1 mb-2">
+        {{#labels}}<span class="mod_taskboard-label mod_taskboard-label-{{key}}">{{name}}</span>{{/labels}}
+    </div>
+    <p class="text-muted small mb-3">
+        {{#str}}incolumn, mod_taskboard, {{columntitle}}{{/str}}
+        {{#hasduedate}} · {{#str}}duedatearia, mod_taskboard, {{duedate}}{{/str}}{{/hasduedate}}
+        {{#author}} · {{#str}}createdby, mod_taskboard, {{author}}{{/str}}{{/author}}
+    </p>
+    {{#hasassignees}}
+    <p class="mb-3"><strong>{{#str}}cardassignees, mod_taskboard{{/str}}:</strong>
+        {{#assignees}}<span class="mod_taskboard-avatar mod_taskboard-avatar-{{colour}}" aria-hidden="true">{{initials}}</span> {{fullname}} {{/assignees}}
+    </p>
+    {{/hasassignees}}
+    {{#hasdescription}}
+    <div class="mod_taskboard-description mb-3">{{{description}}}</div>
+    {{/hasdescription}}
+    {{#hasvideo}}
+    <div class="ratio ratio-16x9 mb-3">
+        <iframe src="{{videourl}}" title="{{#str}}cardvideo, mod_taskboard{{/str}}" allowfullscreen
+            sandbox="allow-same-origin allow-scripts allow-popups" loading="lazy"></iframe>
+    </div>
+    {{/hasvideo}}
+    {{#haschecks}}
+    <section class="mb-3" aria-labelledby="mod_taskboard-checkhead-{{id}}">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 id="mod_taskboard-checkhead-{{id}}" class="h6 mb-1">{{#str}}cardchecks, mod_taskboard{{/str}}</h5>
+            <span class="small text-muted" data-region="mod_taskboard-checkcount">{{checksdone}}/{{checkstotal}}</span>
+        </div>
+        <div class="progress mb-2" style="height: 8px;" aria-hidden="true">
+            <div class="progress-bar bg-success" data-region="mod_taskboard-checkbar" style="width: {{checkspercent}}%"></div>
+        </div>
+        {{#checks}}
+        <div class="form-check mod_taskboard-check">
+            <input class="form-check-input" type="checkbox" id="mod_taskboard-check-{{id}}" data-action="togglecheck" data-checkid="{{id}}"
+                {{#done}}checked{{/done}} {{^canmove}}disabled{{/canmove}}>
+            <label class="form-check-label" for="mod_taskboard-check-{{id}}">{{text}}</label>
+        </div>
+        {{/checks}}
+    </section>
+    {{/haschecks}}
+    {{#canaddimage}}
+    <p class="small text-muted mb-3">{{#str}}pastehint, mod_taskboard{{/str}}</p>
+    <div class="mod_taskboard-pastepanel border rounded p-3 mb-3 d-none" data-region="mod_taskboard-pastepanel">
+        <img class="img-fluid rounded mb-2" data-region="mod_taskboard-pastepreview" alt="" src="data:,">
+        <label class="form-label" for="mod_taskboard-pastealt-{{id}}">{{#str}}cardimagealt, mod_taskboard{{/str}}</label>
+        <input type="text" class="form-control mb-2" id="mod_taskboard-pastealt-{{id}}" maxlength="255" data-region="mod_taskboard-pastealt">
+        <button type="button" class="btn btn-primary" data-action="savepasted">{{#str}}savepastedimage, mod_taskboard{{/str}}</button>
+    </div>
+    {{/canaddimage}}
+    <div class="d-flex flex-wrap gap-2">
+        {{#canedit}}
+        <button type="button" class="btn btn-primary" data-action="editcard" data-cardid="{{id}}">{{#str}}editcard, mod_taskboard{{/str}}</button>
+        {{/canedit}}
+        {{#canapprove}}
+        <button type="button" class="btn btn-success" data-action="approvecard" data-cardid="{{id}}">{{#str}}approvecard, mod_taskboard{{/str}}</button>
+        {{/canapprove}}
+        {{#canedit}}
+        <button type="button" class="btn btn-outline-danger" data-action="deletecard" data-cardid="{{id}}">{{#str}}deletecard, mod_taskboard{{/str}}</button>
+        {{/canedit}}
+    </div>
+</div>

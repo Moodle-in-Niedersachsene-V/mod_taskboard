@@ -1,0 +1,55 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Test data generator of mod_taskboard.
+ *
+ * @package    mod_taskboard
+ * @copyright  2026 Moodle in Niedersachsen e. V.
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_taskboard_generator extends testing_module_generator {
+    /**
+     * Creates a task board instance with sensible defaults.
+     *
+     * @param array|stdClass|null $record Instance values.
+     * @param array|null $options Course module options.
+     * @return stdClass The instance record with cmid.
+     */
+    public function create_instance($record = null, ?array $options = null) {
+        $record = (object)(array)$record;
+        $defaults = [
+            'boardtype' => 0,
+            'columntemplate' => 'classic',
+            'cardsize' => 'm',
+            'allowusersize' => 1,
+            'wiplimit' => 3,
+            'studentrights' => 'own',
+            'approval' => 0,
+            'allowimages' => 1,
+            'requirealt' => 1,
+            'allowvideos' => 0,
+            'completioncards' => 0,
+            'grade' => 0,
+        ];
+        foreach ($defaults as $name => $value) {
+            if (!isset($record->$name)) {
+                $record->$name = $value;
+            }
+        }
+        return parent::create_instance($record, (array)$options);
+    }
+}

@@ -1,0 +1,84 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_taskboard/board
+
+    The task board page: board switcher, card size control and columns.
+
+    Example context (json):
+    {
+        "cmid": 3,
+        "boardname": "Group Blue",
+        "istemplate": false,
+        "cardsize": "m",
+        "canchangesize": true,
+        "sizes": [
+            {"key": "auto", "label": "Auto", "name": "Automatic", "active": false},
+            {"key": "m", "label": "M", "name": "Fixed: medium", "active": true}
+        ],
+        "hasboardselect": false,
+        "needsapproval": false,
+        "board": {
+            "id": 7, "key": "g5", "istemplate": false, "timemodified": 0,
+            "canmanagecolumns": true, "canadd": true,
+            "columns": [
+                {"id": 1, "title": "To do", "wiplimit": 0, "haswiplimit": false, "isdone": false, "count": 0,
+                 "overlimit": false, "countlabel": "0", "canmanage": true, "canmoveleft": false,
+                 "canmoveright": false, "canadd": true, "cards": []}
+            ]
+        }
+    }
+}}
+<div class="mod_taskboard-page mod_taskboard-size-{{cardsize}}" data-region="mod_taskboard-page" data-cmid="{{cmid}}" data-boardid="{{board.id}}">
+    <div class="mod_taskboard-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <h3 class="h5 mb-0">{{boardname}}</h3>
+            {{#hasboardselect}}{{#boardselect}}{{> core/single_select }}{{/boardselect}}{{/hasboardselect}}
+        </div>
+        {{#canchangesize}}
+        <div class="d-flex align-items-center gap-1">
+            <span id="mod_taskboard-sizelabel-{{cmid}}" class="fw-bold">{{#str}}cardsize, mod_taskboard{{/str}}</span>
+            {{#sizehelp}}{{> core/help_icon }}{{/sizehelp}}
+            <div class="btn-group" role="group" aria-labelledby="mod_taskboard-sizelabel-{{cmid}}">
+                {{#sizes}}
+                <button type="button" class="btn {{#active}}btn-primary{{/active}}{{^active}}btn-outline-secondary{{/active}} mod_taskboard-sizebtn"
+                    data-action="cardsize" data-size="{{key}}" aria-pressed="{{#active}}true{{/active}}{{^active}}false{{/active}}"
+                    title="{{name}}">{{label}}</button>
+                {{/sizes}}
+            </div>
+        </div>
+        {{/canchangesize}}
+    </div>
+    {{#istemplate}}
+    <div class="alert alert-info">{{#str}}templatenotice, mod_taskboard{{/str}}</div>
+    {{/istemplate}}
+    {{#needsapproval}}
+    <div class="alert alert-secondary">{{#str}}approvalnotice, mod_taskboard{{/str}}</div>
+    {{/needsapproval}}
+    <p class="small text-muted mb-2">{{#str}}draghint, mod_taskboard{{/str}}</p>
+    <p id="mod_taskboard-kbhint-{{cmid}}" class="sr-only visually-hidden">{{#str}}keyboardhint, mod_taskboard{{/str}}</p>
+    <div class="mod_taskboard-scroll" data-region="mod_taskboard-scroll">
+        <div data-region="mod_taskboard-columns">
+            {{#board}}{{> mod_taskboard/columns }}{{/board}}
+        </div>
+    </div>
+    <div class="sr-only visually-hidden" aria-live="assertive" data-region="mod_taskboard-live"></div>
+    <div class="mod_taskboard-toast d-none" role="status" data-region="mod_taskboard-toast">
+        <span data-region="mod_taskboard-toast-text"></span>
+        <button type="button" class="btn btn-light btn-sm" data-action="undo">{{#str}}undo, mod_taskboard{{/str}}</button>
+    </div>
+</div>
