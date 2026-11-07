@@ -35,6 +35,7 @@ class card_data {
      * @param string $imagealt Alternative text of the card image.
      * @param int[] $assignees User ids assigned to the card.
      * @param string[] $checks Checklist item texts in order.
+     * @param array[] $links Links in order, each with url and title.
      */
     public function __construct(
         /** @var string The card title. */
@@ -53,7 +54,58 @@ class card_data {
         public readonly array $assignees = [],
         /** @var string[] Checklist item texts in order. */
         public readonly array $checks = [],
+        /** @var array[] Links in order, each with url and title. */
+        public readonly array $links = [],
     ) {
+    }
+
+    /** @var int Most links one card can hold. */
+    public const MAX_LINKS = 10;
+
+    /**
+     * Reads one line of the links field: an address, or a title and an address separated by "|".
+     *
+     * @param string $line The line.
+     * @return array|null The link with url and title, null if the address is not a valid http(s) address.
+     */
+    public static function parse_link(string $line): ?array {
+        $title = '';
+        $address = $line;
+        if (str_contains($line, '|')) {
+            [$title, $address] = array_map('trim', explode('|', $line, 2));
+        }
+        $url = clean_param(trim($address), PARAM_URL);
+        if ($url === '' || !preg_match('~^https?://[^\s/]+~i', $url)) {
+            return null;
+        }
+        return ['url' => $url, 'title' => \core_text::substr($title, 0, 255)];
+    }
+
+    /**
+     * Returns the non-empty lines of the links field.
+     *
+     * @param string $text The field text.
+     * @return string[]
+     */
+    public static function link_lines(string $text): array {
+        return array_values(array_filter(array_map('trim', preg_split('/\R/u', $text)), fn($line) => $line !== ''));
+    }
+
+    /**
+     * Turns the links field into links, skipping lines that are not valid addresses.
+     *
+     * @param string $text The field text, one link per line.
+     * @return array[]
+     */
+    public static function links_from_text(string $text): array {
+        $links = [];
+        foreach (self::link_lines($text) as $line) {
+            $link = self::parse_link($line);
+            if ($link !== null && count($links) < self::MAX_LINKS) {
+                $links[] = $link;
+            }
+        }
+        return $links;
     }
 
     /**

@@ -147,8 +147,9 @@
     display: block;
     flex-shrink: 0;
     width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
+    height: auto;
+    object-fit: contain;
+    background-color: #f1f3f5;
     pointer-events: none;
 }
 
@@ -252,7 +253,7 @@
     border-radius: .25rem;
 }
 
-.mod_taskboard-page .mod_taskboard-imagehint {
+.mod_taskboard-page .mod_taskboard-meta > .mod_taskboard-imagehint {
     display: none;
 }
 
@@ -322,7 +323,7 @@
     display: none;
 }
 
-.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-imagehint {
+.mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-meta > .mod_taskboard-imagehint {
     display: inline-flex;
 }
 
@@ -332,7 +333,6 @@
 
 .mod_taskboard-page.mod_taskboard-size-m .mod_taskboard-cover {
     height: 76px;
-    aspect-ratio: auto;
 }
 
 .mod_taskboard-page.mod_taskboard-size-m .mod_taskboard-title,
@@ -346,7 +346,6 @@
 
 .mod_taskboard-page.mod_taskboard-size-l .mod_taskboard-cover {
     height: 136px;
-    aspect-ratio: auto;
 }
 
 .mod_taskboard-page.mod_taskboard-size-s .mod_taskboard-ghost .mod_taskboard-cover {
@@ -424,4 +423,22 @@
 
 .mod_taskboard-detail .mod_taskboard-pastepanel img {
     max-height: 200px;
+}
+
+.mod_taskboard-page.mod_taskboard-size-auto .mod_taskboard-cover {
+    max-height: 240px;
+}
+
+/* Links in the card detail. */
+.mod_taskboard-detail .mod_taskboard-links {
+    padding-left: 0;
+    list-style: none;
+}
+
+.mod_taskboard-detail .mod_taskboard-links li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 2.5rem;
+    overflow-wrap: anywhere;
 }

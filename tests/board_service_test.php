@@ -93,6 +93,23 @@ final class board_service_test extends \advanced_testcase {
         $this->assertSame(1, $DB->count_records('taskboard_checks', ['cardid' => reset($cards)->id]));
     }
 
+    public function test_links_are_saved_and_copied_from_template(): void {
+        global $DB;
+        [, $taskboard, $teacher, $student] = $this->setup_board();
+        $teacherservice = new board_service($this->access_for($taskboard, $teacher));
+        $template = $teacherservice->get_or_create_board(0, 0, true);
+        $links = card_data::links_from_text("Weather data | https://example.org/weather\nhttps://example.org/map\nnot a link");
+        $teacherservice->add_card($template, $this->column_ids($template)[0], new card_data('With links', links: $links));
+
+        $board = (new board_service($this->access_for($taskboard, $student)))->resolve_board('');
+        $cardid = $DB->get_field('taskboard_cards', 'id', ['boardid' => $board->id]);
+        $stored = array_values($DB->get_records('taskboard_links', ['cardid' => $cardid], 'sortorder'));
+
+        $this->assertCount(2, $stored);
+        $this->assertSame('Weather data', $stored[0]->title);
+        $this->assertSame('https://example.org/map', $stored[1]->url);
+    }
+
     public function test_move_card_reorders_both_columns(): void {
         global $DB;
         [, $taskboard, , $student] = $this->setup_board();

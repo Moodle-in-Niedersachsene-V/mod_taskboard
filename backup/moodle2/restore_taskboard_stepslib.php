@@ -49,6 +49,7 @@ class restore_taskboard_activity_structure_step extends restore_activity_structu
             new restore_path_element('taskboard_column', '/activity/taskboard/boards/board/columns/column'),
             new restore_path_element('taskboard_card', '/activity/taskboard/boards/board/columns/column/cards/card'),
             new restore_path_element('taskboard_check', '/activity/taskboard/boards/board/columns/column/cards/card/checks/check'),
+            new restore_path_element('taskboard_link', '/activity/taskboard/boards/board/columns/column/cards/card/links/link'),
             new restore_path_element(
                 'taskboard_assignee',
                 '/activity/taskboard/boards/board/columns/column/cards/card/assignees/assignee'
@@ -164,6 +165,23 @@ class restore_taskboard_activity_structure_step extends restore_activity_structu
         }
         // phpcs:ignore moodle.Commenting.InlineComment
         $DB->insert_record('taskboard_checks', $data); // nosemgrep: moodle-fehlender-sesskey
+    }
+
+    /**
+     * Restores a link of a restored card.
+     *
+     * @param array $data The element data.
+     * @return void
+     */
+    protected function process_taskboard_link($data) {
+        global $DB;
+        $data = (object)$data;
+        $data->cardid = $this->get_new_parentid('taskboard_card');
+        if (!$data->cardid) {
+            return;
+        }
+        // phpcs:ignore moodle.Commenting.InlineComment
+        $DB->insert_record('taskboard_links', $data); // nosemgrep: moodle-fehlender-sesskey
     }
 
     /**

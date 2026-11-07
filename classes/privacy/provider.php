@@ -60,6 +60,10 @@ class provider implements
             'timecreated' => 'privacy:metadata:cards:timecreated',
             'timemodified' => 'privacy:metadata:cards:timemodified',
         ], 'privacy:metadata:cards');
+        $collection->add_database_table('taskboard_links', [
+            'url' => 'privacy:metadata:links:url',
+            'title' => 'privacy:metadata:links:title',
+        ], 'privacy:metadata:links');
         $collection->add_database_table('taskboard_assignees', [
             'userid' => 'privacy:metadata:assignees:userid',
         ], 'privacy:metadata:assignees');
@@ -167,6 +171,7 @@ class provider implements
             $exported = [];
             foreach ($cards as $card) {
                 $checks = $DB->get_records('taskboard_checks', ['cardid' => $card->id], 'sortorder', 'text, done');
+                $links = $DB->get_records('taskboard_links', ['cardid' => $card->id], 'sortorder', 'id, url, title');
                 $exported[] = (object)[
                     'title' => $card->title,
                     'description' => $card->description,
@@ -180,6 +185,10 @@ class provider implements
                     'checklist' => array_values(array_map(
                         fn($check) => ['text' => $check->text, 'done' => transform::yesno((bool)$check->done)],
                         $checks
+                    )),
+                    'links' => array_values(array_map(
+                        fn($link) => ['url' => $link->url, 'title' => (string)$link->title],
+                        $links
                     )),
                     'timecreated' => transform::datetime($card->timecreated),
                     'timemodified' => transform::datetime($card->timemodified),

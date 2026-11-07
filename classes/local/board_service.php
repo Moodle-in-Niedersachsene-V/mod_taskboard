@@ -245,6 +245,7 @@ class board_service {
         $card->id = $DB->insert_record('taskboard_cards', $card);
         $this->save_assignees((int)$card->id, $data->assignees);
         $this->save_checks((int)$card->id, $data->checks);
+        $this->save_links((int)$card->id, $data->links);
         $this->touch_board((int)$board->id);
         card_created::create_for_card($this->access->context, $card)->trigger();
         $this->refresh_progress($card);
@@ -265,6 +266,7 @@ class board_service {
         $DB->update_record('taskboard_cards', $card);
         $this->save_assignees((int)$card->id, $data->assignees);
         $this->save_checks((int)$card->id, $data->checks);
+        $this->save_links((int)$card->id, $data->links);
         $this->touch_board((int)$card->boardid);
         card_updated::create_for_card($this->access->context, $card)->trigger();
         $this->refresh_progress($card);
@@ -515,6 +517,7 @@ class board_service {
             [$insql, $params] = $DB->get_in_or_equal($cardids, SQL_PARAMS_NAMED);
             $DB->delete_records_select('taskboard_checks', "cardid $insql", $params);
             $DB->delete_records_select('taskboard_assignees', "cardid $insql", $params);
+            $DB->delete_records_select('taskboard_links', "cardid $insql", $params);
         }
         $DB->delete_records('taskboard_cards', ['boardid' => $boardid]);
         $DB->delete_records('taskboard_columns', ['boardid' => $boardid]);
@@ -595,6 +598,26 @@ class board_service {
     }
 
     /**
+     * Replaces the links of a card.
+     *
+     * @param int $cardid The card id.
+     * @param array[] $links Links in order, each with url and title.
+     * @return void
+     */
+    private function save_links(int $cardid, array $links): void {
+        global $DB;
+        $DB->delete_records('taskboard_links', ['cardid' => $cardid]);
+        foreach (array_values(array_slice($links, 0, card_data::MAX_LINKS)) as $position => $link) {
+            $DB->insert_record('taskboard_links', (object)[
+                'cardid' => $cardid,
+                'url' => $link['url'],
+                'title' => $link['title'] !== '' ? $link['title'] : null,
+                'sortorder' => $position,
+            ]);
+        }
+    }
+
+    /**
      * Deletes the rows and image of one card without renumbering or events.
      *
      * @param stdClass $card The card record.
@@ -604,6 +627,7 @@ class board_service {
         global $DB;
         $DB->delete_records('taskboard_checks', ['cardid' => $card->id]);
         $DB->delete_records('taskboard_assignees', ['cardid' => $card->id]);
+        $DB->delete_records('taskboard_links', ['cardid' => $card->id]);
         $DB->delete_records('taskboard_cards', ['id' => $card->id]);
         get_file_storage()->delete_area_files($this->access->context->id, 'mod_taskboard', 'cardimage', $card->id);
     }
@@ -721,6 +745,11 @@ class board_service {
                     $check->cardid = $newcardid;
                     $check->done = 0;
                     $DB->insert_record('taskboard_checks', $check);
+                }
+                foreach ($DB->get_records('taskboard_links', ['cardid' => $oldcardid], 'sortorder') as $link) {
+                    unset($link->id);
+                    $link->cardid = $newcardid;
+                    $DB->insert_record('taskboard_links', $link);
                 }
                 foreach ($fs->get_area_files($contextid, 'mod_taskboard', 'cardimage', $oldcardid, 'id', false) as $file) {
                     $fs->create_file_from_storedfile(['itemid' => $newcardid], $file);

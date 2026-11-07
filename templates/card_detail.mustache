@@ -28,6 +28,8 @@
         "assignees": [{"userid": 5, "fullname": "Lea Sommer", "initials": "LS", "colour": 6}], "hasassignees": true,
         "checks": [{"id": 1, "text": "Write questions", "done": true}], "haschecks": true,
         "checksdone": 1, "checkstotal": 1, "checkspercent": 100,
+        "links": [{"url": "https://example.org/a", "title": "Weather data"}, {"url": "https://example.org/b", "title": "https://example.org/b"}],
+        "haslinks": true,
         "hasimage": false, "imageurl": "", "imagealt": "", "hasvideo": false, "videourl": "",
         "approved": true, "canapprove": false, "canedit": true, "canmove": true, "canaddimage": true
     }
@@ -55,6 +57,21 @@
     {{#hasdescription}}
     <div class="mod_taskboard-description mb-3">{{{description}}}</div>
     {{/hasdescription}}
+    {{#haslinks}}
+    <section class="mb-3" aria-labelledby="mod_taskboard-linkhead-{{id}}">
+        <h5 id="mod_taskboard-linkhead-{{id}}" class="h6 mb-1">{{#str}}cardlinks, mod_taskboard{{/str}}</h5>
+        <ul class="mod_taskboard-links mb-0">
+            {{#links}}
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <a href="{{url}}" target="_blank" rel="noopener noreferrer">{{title}}<span class="sr-only visually-hidden"> {{#str}}opensinnewwindow, mod_taskboard{{/str}}</span></a>
+            </li>
+            {{/links}}
+        </ul>
+    </section>
+    {{/haslinks}}
     {{#hasvideo}}
     <div class="ratio ratio-16x9 mb-3">
         <iframe src="{{videourl}}" title="{{#str}}cardvideo, mod_taskboard{{/str}}" allowfullscreen

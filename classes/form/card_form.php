@@ -115,6 +115,10 @@ class card_form extends \core_form\dynamic_form {
         $mform->setType('checks', PARAM_TEXT);
         $mform->addHelpButton('checks', 'cardchecks', 'mod_taskboard');
 
+        $mform->addElement('textarea', 'links', get_string('cardlinks', 'mod_taskboard'), ['rows' => 3, 'cols' => 40]);
+        $mform->setType('links', PARAM_TEXT);
+        $mform->addHelpButton('links', 'cardlinks', 'mod_taskboard');
+
         if (!empty($taskboard->allowimages)) {
             $mform->addElement('filemanager', 'image', get_string('cardimage', 'mod_taskboard'), null, $this->file_options());
             $mform->addHelpButton('image', 'cardimage', 'mod_taskboard');
@@ -167,6 +171,17 @@ class card_form extends \core_form\dynamic_form {
             $draftfiles = file_get_all_files_in_draftarea((int)$data['image']);
             if ($draftfiles && trim($data['imagealt'] ?? '') === '') {
                 $errors['imagealt'] = get_string('imagealtrequired', 'mod_taskboard');
+            }
+        }
+        $linklines = card_data::link_lines((string)($data['links'] ?? ''));
+        if (count($linklines) > card_data::MAX_LINKS) {
+            $errors['links'] = get_string('toomanylinks', 'mod_taskboard', card_data::MAX_LINKS);
+        } else {
+            foreach ($linklines as $number => $line) {
+                if (card_data::parse_link($line) === null) {
+                    $errors['links'] = get_string('invalidlink', 'mod_taskboard', $number + 1);
+                    break;
+                }
             }
         }
         if (
@@ -228,6 +243,7 @@ class card_form extends \core_form\dynamic_form {
             imagealt: !empty($taskboard->allowimages) ? (string)($data->imagealt ?? '') : (string)($card->imagealt ?? ''),
             assignees: $assignees,
             checks: card_data::checks_from_text((string)($data->checks ?? '')),
+            links: card_data::links_from_text((string)($data->links ?? '')),
         );
 
         $service = new board_service($access);
@@ -276,7 +292,13 @@ class card_form extends \core_form\dynamic_form {
                 'SELECT text FROM {taskboard_checks} WHERE cardid = :cardid ORDER BY sortorder, id',
                 ['cardid' => $card->id]
             );
+            $links = [];
+            foreach ($DB->get_records('taskboard_links', ['cardid' => $card->id], 'sortorder, id') as $link) {
+                $title = trim((string)$link->title);
+                $links[] = $title !== '' ? $title . ' | ' . $link->url : $link->url;
+            }
             $data += [
+                'links' => implode("\n", $links),
                 'title' => $card->title,
                 'description' => $card->description,
                 'labels' => $labels,

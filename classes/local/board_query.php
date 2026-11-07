@@ -54,6 +54,7 @@ class board_query {
         $cards = $DB->get_records('taskboard_cards', ['boardid' => $board->id], 'columnid, sortorder, id');
         $cards = array_filter($cards, fn($card) => $access->can_see_card($card));
         $checks = $this->check_counts(array_keys($cards));
+        $linkcounts = $this->link_counts(array_keys($cards));
         $assignees = $this->assignees(array_keys($cards));
         $images = $this->image_urls();
 
@@ -74,7 +75,8 @@ class board_query {
                     $column,
                     $checks[(int)$card->id] ?? [0, 0],
                     $assignees[(int)$card->id] ?? [],
-                    $images[(int)$card->id] ?? null
+                    $images[(int)$card->id] ?? null,
+                    $linkcounts[(int)$card->id] ?? 0
                 );
             }
             $count = count($columncards);
@@ -124,6 +126,14 @@ class board_query {
             $checks[] = ['id' => (int)$check->id, 'text' => $check->text, 'done' => (bool)$check->done];
         }
         $assignees = $this->assignees([(int)$card->id])[(int)$card->id] ?? [];
+        $links = [];
+        foreach ($DB->get_records('taskboard_links', ['cardid' => $card->id], 'sortorder, id') as $link) {
+            $title = trim((string)$link->title);
+            $links[] = [
+                'url' => $link->url,
+                'title' => $title !== '' ? $title : $link->url,
+            ];
+        }
         $images = $this->image_urls((int)$card->id);
         $author = '';
         if ((int)$card->createdby > 0) {
@@ -150,6 +160,8 @@ class board_query {
             'checksdone' => $done,
             'checkstotal' => $total,
             'checkspercent' => $total > 0 ? (int)round($done / $total * 100) : 0,
+            'links' => $links,
+            'haslinks' => !empty($links),
             'hasimage' => isset($images[(int)$card->id]),
             'imageurl' => $images[(int)$card->id] ?? '',
             'imagealt' => (string)$card->imagealt,
@@ -200,6 +212,7 @@ class board_query {
      * @param int[] $checks Done and total checklist items.
      * @param array $assignees Exported assignees.
      * @param string|null $imageurl The image address, if any.
+     * @param int $linkcount Number of links on the card.
      * @return array
      */
     private function export_card_summary(
@@ -208,7 +221,8 @@ class board_query {
         stdClass $column,
         array $checks,
         array $assignees,
-        ?string $imageurl
+        ?string $imageurl,
+        int $linkcount
     ): array {
         $access = $this->access;
         [$done, $total] = $checks;
@@ -224,6 +238,9 @@ class board_query {
         }
         if ($total > 0) {
             $aria[] = get_string('checksaria', 'mod_taskboard', (object)['done' => $done, 'total' => $total]);
+        }
+        if ($linkcount > 0) {
+            $aria[] = get_string('linksaria', 'mod_taskboard', $linkcount);
         }
         if (empty($card->approved)) {
             $aria[] = get_string('pendingapproval', 'mod_taskboard');
@@ -244,6 +261,8 @@ class board_query {
             'hasimage' => $imageurl !== null,
             'imageurl' => $imageurl ?? '',
             'hasvideo' => !empty($access->taskboard->allowvideos) && trim((string)$card->videourl) !== '',
+            'haslinks' => $linkcount > 0,
+            'linkcount' => $linkcount,
             'isdone' => (bool)$column->isdone,
             'pending' => empty($card->approved),
             'assignees' => $shown,
@@ -299,6 +318,29 @@ class board_query {
         $counts = [];
         foreach ($DB->get_records_sql($sql, $params) as $row) {
             $counts[(int)$row->cardid] = [(int)$row->donecount, (int)$row->total];
+        }
+        return $counts;
+    }
+
+    /**
+     * Returns the number of links per card.
+     *
+     * @param int[] $cardids The card ids.
+     * @return array<int, int>
+     */
+    private function link_counts(array $cardids): array {
+        global $DB;
+        if (!$cardids) {
+            return [];
+        }
+        [$insql, $params] = $DB->get_in_or_equal($cardids, SQL_PARAMS_NAMED);
+        $sql = "SELECT cardid, COUNT(id) AS total
+                  FROM {taskboard_links}
+                 WHERE cardid $insql
+              GROUP BY cardid";
+        $counts = [];
+        foreach ($DB->get_records_sql($sql, $params) as $row) {
+            $counts[(int)$row->cardid] = (int)$row->total;
         }
         return $counts;
     }

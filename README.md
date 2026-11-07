@@ -16,13 +16,14 @@ and designed to work both inside a course and embedded in other Moodle sites via
 - **Images on cards:** one cover image per card, uploaded, chosen from any repository (for example
   the image pool `repository_bildpool`, if installed) or pasted from the clipboard. Images are
   re-encoded on save, which removes EXIF data such as location, and scaled to at most 1600 px.
+  With a fixed card size the whole image stays visible (scaled to fit, not cropped).
   An image description (alternative text) can be required.
 - **Board types:** one board for the course, one per group, or one personal board per participant.
   Every new board starts as a copy of the template board, so teachers can prepare cards.
 - **Participant permissions:** only move cards, add and edit own cards, or edit all cards and
   columns. Optional approval of new cards by a teacher.
 - **Cards:** title, description, labels, due date, assigned participants, checklist, image,
-  PeerTube video (from servers the administrator allows).
+  up to ten links, PeerTube video (from servers the administrator allows).
 - **Work-in-progress limit** per column with a warning when exceeded.
 - **Completion and grading:** complete when a number of the participant's cards lie in done
   columns. With point grading, the grade is the share of that number reached; Moodle sends it

@@ -61,6 +61,8 @@ class backup_taskboard_activity_structure_step extends backup_activity_structure
         ]);
         $checks = new backup_nested_element('checks');
         $check = new backup_nested_element('check', ['id'], ['text', 'done', 'sortorder']);
+        $links = new backup_nested_element('links');
+        $link = new backup_nested_element('link', ['id'], ['url', 'title', 'sortorder']);
         $assignees = new backup_nested_element('assignees');
         $assignee = new backup_nested_element('assignee', ['id'], ['userid']);
 
@@ -72,6 +74,8 @@ class backup_taskboard_activity_structure_step extends backup_activity_structure
         $cards->add_child($card);
         $card->add_child($checks);
         $checks->add_child($check);
+        $card->add_child($links);
+        $links->add_child($link);
         $card->add_child($assignees);
         $assignees->add_child($assignee);
 
@@ -87,6 +91,7 @@ class backup_taskboard_activity_structure_step extends backup_activity_structure
         $column->set_source_table('taskboard_columns', ['boardid' => backup::VAR_PARENTID], 'sortorder ASC');
         $card->set_source_table('taskboard_cards', ['columnid' => backup::VAR_PARENTID], 'sortorder ASC');
         $check->set_source_table('taskboard_checks', ['cardid' => backup::VAR_PARENTID], 'sortorder ASC');
+        $link->set_source_table('taskboard_links', ['cardid' => backup::VAR_PARENTID], 'sortorder ASC');
         if ($userinfo) {
             $assignee->set_source_table('taskboard_assignees', ['cardid' => backup::VAR_PARENTID]);
         }

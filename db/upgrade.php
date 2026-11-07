@@ -29,6 +29,24 @@
  * @return bool True on success.
  */
 function xmldb_taskboard_upgrade($oldversion) {
-    // The first release has no upgrade steps yet.
+    global $DB;
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2026110606) {
+        // Cards can hold several links.
+        $table = new xmldb_table('taskboard_links');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('cardid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('url', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('cardid', XMLDB_KEY_FOREIGN, ['cardid'], 'taskboard_cards', ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        upgrade_mod_savepoint(true, 2026110606, 'taskboard');
+    }
+
     return true;
 }
