@@ -83,6 +83,19 @@ class Board {
         if (pollinterval > 0) {
             window.setInterval(() => this.poll(), pollinterval * 1000);
         }
+        this.linkKeyboardHint();
+    }
+
+    /**
+     * Connects every card with the hidden keyboard instructions of the page.
+     *
+     * Done here rather than in the card template, because the template is also rendered on its own.
+     */
+    linkKeyboardHint() {
+        const hintid = 'mod_taskboard-kbhint-' + this.cmid;
+        this.root.querySelectorAll('[data-region="mod_taskboard-card"]').forEach((card) => {
+            card.setAttribute('aria-describedby', hintid);
+        });
     }
 
     /**
@@ -153,6 +166,7 @@ class Board {
         return Templates.renderForPromise('mod_taskboard/columns', context)
             .then(({html, js}) => {
                 Templates.replaceNodeContents(this.columnsRegion, html, js);
+                this.linkKeyboardHint();
                 this.timemodified = board.timemodified;
                 if (focusId) {
                     const card = this.findCard(focusId);

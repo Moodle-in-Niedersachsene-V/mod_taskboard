@@ -56,7 +56,7 @@ final class provider_test extends provider_testcase {
     public function test_export_contains_the_users_card(): void {
         [, $student, , $context] = $this->setup_card();
         $contextlist = provider::get_contexts_for_userid((int)$student->id);
-        $this->assertContains($context->id, $contextlist->get_contextids());
+        $this->assertContains((int)$context->id, array_map('intval', $contextlist->get_contextids()));
 
         provider::export_user_data(new approved_contextlist($student, 'mod_taskboard', [$context->id]));
 
