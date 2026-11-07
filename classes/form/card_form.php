@@ -133,9 +133,14 @@ class card_form extends \core_form\dynamic_form {
     /**
      * Returns the file manager options for the card image.
      *
+     * Loads the repository library, which defines FILE_INTERNAL; when the form is built in an
+     * AJAX request for the modal, nothing else has loaded it yet.
+     *
      * @return array
      */
     private function file_options(): array {
+        global $CFG;
+        require_once($CFG->dirroot . '/repository/lib.php');
         return [
             'subdirs' => 0,
             'maxfiles' => 1,
