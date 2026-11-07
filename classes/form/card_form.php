@@ -128,23 +128,36 @@ class card_form extends \core_form\dynamic_form {
         }
 
         if (!empty($taskboard->allowvideos)) {
-            $mform->addElement('text', 'videourl', get_string('cardvideo', 'mod_taskboard'), ['size' => 40]);
+            // The URL element offers the file picker, so videos come from the PeerTube repository,
+            // including unlisted ones; the repository must return links (FILE_EXTERNAL).
+            self::load_repository_lib();
+            $mform->addElement('url', 'videourl', get_string('cardvideo', 'mod_taskboard'), ['size' => 40], [
+                'usefilepicker' => true,
+            ]);
             $mform->setType('videourl', PARAM_URL);
             $mform->addHelpButton('videourl', 'cardvideo', 'mod_taskboard');
         }
     }
 
     /**
-     * Returns the file manager options for the card image.
+     * Loads the repository library with the file picker and the FILE_* constants.
      *
-     * Loads the repository library, which defines FILE_INTERNAL; when the form is built in an
-     * AJAX request for the modal, nothing else has loaded it yet.
+     * When the form is built in an AJAX request for the modal, nothing else has loaded it yet.
+     *
+     * @return void
+     */
+    private static function load_repository_lib(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/repository/lib.php');
+    }
+
+    /**
+     * Returns the file manager options for the card image.
      *
      * @return array
      */
     private function file_options(): array {
-        global $CFG;
-        require_once($CFG->dirroot . '/repository/lib.php');
+        self::load_repository_lib();
         return [
             'subdirs' => 0,
             'maxfiles' => 1,

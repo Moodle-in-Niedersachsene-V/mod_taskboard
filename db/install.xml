@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/taskboard/db" VERSION="2026110607" COMMENT="XMLDB file for Moodle mod/taskboard"
+<XMLDB PATH="mod/taskboard/db" VERSION="2026110608" COMMENT="XMLDB file for Moodle mod/taskboard"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
