@@ -180,9 +180,12 @@ class card_form extends \core_form\dynamic_form {
         if (trim($data['title'] ?? '') === '') {
             $errors['title'] = get_string('required');
         }
-        if (!empty($taskboard->allowimages) && !empty($taskboard->requirealt) && !empty($data['image'])) {
+        if (!empty($taskboard->allowimages) && !empty($data['image'])) {
+            if (!image_processor::draft_images_readable((int)$data['image'])) {
+                $errors['image'] = get_string('invalidimage', 'mod_taskboard');
+            }
             $draftfiles = file_get_all_files_in_draftarea((int)$data['image']);
-            if ($draftfiles && trim($data['imagealt'] ?? '') === '') {
+            if (!empty($taskboard->requirealt) && $draftfiles && trim($data['imagealt'] ?? '') === '') {
                 $errors['imagealt'] = get_string('imagealtrequired', 'mod_taskboard');
             }
         }

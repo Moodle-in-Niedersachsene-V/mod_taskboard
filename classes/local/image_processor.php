@@ -48,6 +48,26 @@ class image_processor {
     }
 
     /**
+     * Whether every file in a draft area is an image the plugin can store.
+     *
+     * Lets the card form reject unreadable files instead of dropping them silently on save.
+     *
+     * @param int $draftitemid The draft item id of the current user.
+     * @return bool
+     */
+    public static function draft_images_readable(int $draftitemid): bool {
+        global $USER;
+        $context = \core\context\user::instance($USER->id);
+        $files = get_file_storage()->get_area_files($context->id, 'user', 'draft', $draftitemid, 'id', false);
+        foreach ($files as $file) {
+            if (!in_array($file->get_mimetype(), self::MIMETYPES, true) || !$file->get_imageinfo()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Re-encodes the image of a card after it was saved from a draft area.
      *
      * Keeps at most one image; anything that is not a readable image is removed.
